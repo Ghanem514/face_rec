@@ -118,12 +118,20 @@ def send_email_with_links(receiver_email, selected_filenames):
     msg["From"] = EMAIL_SENDER
     msg["To"] = receiver_email
 
-    html_content = "<h2>Hello,\n\nHere are the face matches you selected:\n</h2><ul>"
+    html_content =  """
+    <h2>Hello there! 👋</h2>
+    <p>We’ve found some faces that match what you selected. Take a look below and see if they look familiar:</p>
+    <ul>
+    """
     for filename in selected_filenames:
         normalized_filename = normalize_name(filename)
         image_url = normalized_image_url_map.get(normalized_filename, "#")
         html_content += f"<li><b>{filename}</b>: <a href='{image_url}' target='_blank'>View Image</a></li><br>"
-    html_content += "</ul>"
+    html_content +=  """
+    </ul>
+    <p>We hope this helps! 😊</p>
+    <p>Best regards,<br>Tech3arabi Team</p>
+    """
 
     msg.add_alternative(html_content, subtype='html')
 
@@ -275,3 +283,4 @@ def send_selected():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
