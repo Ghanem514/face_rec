@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Face Recognition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #000;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            overflow-y: auto;
+            text-align: center;
+        }
+
+        /* Adjust for RTL */
+        body[dir="rtl"] { text-align: right; direction: rtl; }
+
+        /* Background animations */
+        .background-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                linear-gradient(0deg, rgba(243,120,32,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(243,120,32,0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: moveLines 20s linear infinite;
+            z-index: -3;
+        }
+        @keyframes moveLines { 0% { transform: translate(0,0); } 100% { transform: translate(-100px,-100px); } }
+
+        /* Floating particles */
+        .particle {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: rgba(255,50,0,0.8);
+            border-radius: 50%;
+            opacity: 0.7;
+            animation: float 8s linear infinite;
+        }
+        @keyframes float { 
+            0% { transform: translateY(0) translateX(0); opacity: 0.7; }
+            50% { transform: translateY(-100px) translateX(100px); opacity: 0.2; }
+            100% { transform: translateY(0) translateX(0); opacity: 0.7; }
+        }
+
+        /* Pulsing circles */
+        .pulse-circle {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(243,120,32,0.5);
+            border-radius: 50%;
+            animation: pulse 4s infinite;
+            opacity: 0.6;
+        }
+        @keyframes pulse { 
+            0% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(2.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 0.6; }
+        }
+
+        /* Logo */
+        .logo-container { text-align: center; margin-bottom: 40px; position: relative; z-index: 1; }
+        .logo { max-height: 140px; width: auto; display: inline-block; }
+
+        /* Main container */
+        .container { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center; gap: 40px; z-index: 1; position: relative; }
+
+        /* CAMERA SECTION */
+        .camera-container { position: relative; flex: 1 1 60%; max-width: 700px; min-width: 400px; }
+        .camera-feed {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            background: rgba(255,255,255,0.05) url('https://via.placeholder.com/640x480?text=Loading+Camera...') center center no-repeat;
+            background-size: cover;
+            border: 3px solid rgba(243,120,32,0.6);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(243,120,32,0.5);
+            display: block;
+        }
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(243,120,32,0.6);
+            animation: scanMove 3s linear infinite;
+            z-index: 2;
+        }
+        @keyframes scanMove { 0% { top: 0; } 100% { top: 100%; } }
+
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(rgba(243,120,32,0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(243,120,32,0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            border-radius: 10px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .hud-text {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            font-size: 14px;
+            color: #f37820;
+            text-shadow: 0 0 5px rgba(243,120,32,0.7);
+            font-weight: bold;
+            animation: textBlink 1s infinite alternate;
+            z-index: 3;
+        }
+        @keyframes textBlink { 0% { opacity: 1; } 100% { opacity: 0.5; } }
+
+        /* FORM */
+        form {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            width: 300px;
+            box-shadow: 0 4px 20px rgba(243,120,32,0.1);
+        }
+        label { font-weight: 600; font-size: 14px; color: #fff; }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0 15px 0;
+            border: 1px solid #fff;
+            border-radius: 6px;
+            outline: none;
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+        }
+        input:focus { box-shadow: 0 0 10px rgba(243,120,32,0.5); }
+        button {
+            background: #f37820;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        button:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 0 10px #f37820; }
+    </style>
+</head>
+<body dir="{{ 'rtl' if lang=='ar' else 'ltr' }}">
+
+    <!-- Language Switch -->
+    <div style="position: fixed; top: 15px; right: 15px; z-index: 10;">
+        {% if lang == 'en' %}
+            <a href="{{ url_for('switch_lang', lang='ar') }}" style="color:#f37820;">العربية</a>
+        {% else %}
+            <a href="{{ url_for('switch_lang', lang='en') }}" style="color:#f37820;">English</a>
+        {% endif %}
+    </div>
+
+    <!-- Background elements -->
+    <div class="background-lines"></div>
+    <div class="particle" style="top:10%; left:15%; animation-delay:0s;"></div>
+    <div class="particle" style="top:30%; left:50%; animation-delay:1s;"></div>
+    <div class="particle" style="top:50%; left:20%; animation-delay:2s;"></div>
+    <div class="particle" style="top:70%; left:70%; animation-delay:3s;"></div>
+    <div class="particle" style="top:20%; left:80%; animation-delay:1.5s;"></div>
+    <div class="particle" style="top:60%; left:40%; animation-delay:2.5s;"></div>
+    <div class="pulse-circle" style="top:20%; left:25%; animation-delay:0s;"></div>
+    <div class="pulse-circle" style="top:50%; left:60%; animation-delay:1s;"></div>
+    <div class="pulse-circle" style="top:70%; left:30%; animation-delay:2s;"></div>
+
+    <!-- Logo -->
+    <div class="logo-container">
+        <img src="{{ url_for('static', filename='face_images/logo.png') }}" alt="Company Logo" class="logo">
+    </div>
+
+    <div class="container">
+        <!-- CAMERA PANEL -->
+        <div class="camera-container">
+            <img class="camera-feed" src="{{ url_for('video_feed') }}" alt="Camera Feed">
+            <div class="grid-overlay"></div>
+            <div class="scan-line"></div>
+            <div class="hud-text">
+                {% if lang=='en' %}Analyzing Face...{% else %}جارٍ تحليل الوجه...{% endif %}
+            </div>
+        </div>
+
+        <!-- FORM PANEL -->
+        <form action="/recognize" method="POST">
+            <label>{% if lang=='en' %}Name:{% else %}الاسم:{% endif %}</label>
+            <input type="text" name="name" required>
+            <label>{% if lang=='en' %}Phone:{% else %}الهاتف:{% endif %}</label>
+            <input type="text" name="phone" required>
+            <label>{% if lang=='en' %}Email:{% else %}البريد الإلكتروني:{% endif %}</label>
+            <input type="email" name="email" required>
+            <button type="submit">{% if lang=='en' %}📸 Scan Face{% else %}📸 مسح الوجه{% endif %}</button>
+        </form>
+    </div>
+</body>
+</html>

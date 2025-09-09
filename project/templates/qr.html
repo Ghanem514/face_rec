@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Face Recognition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+    body {
+        margin: 0;
+        padding: 0;
+        background: #0d0d0d;
+        font-family: 'Poppins', sans-serif;
+        color: white;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* HEADER TITLE */
+    .page-header {
+        width: 100%;
+        text-align: center;
+        padding: 20px;
+        font-size: 1.8em;
+        font-weight: bold;
+        color: #f37820;
+        background: rgba(0,0,0,0.8);
+    }
+
+    .container {
+        display: flex;
+        gap: 40px;
+        width: 90%;
+        max-width: 1200px;
+        align-items: flex-start;
+        flex: 1;
+        margin-top: 20px;
+    }
+
+    /* CAMERA PANEL */
+    .camera-container {
+        position: relative;
+        flex: 1 1 60%;
+        max-width: 600px; /* smaller than before */
+        display: inline-block;
+        flex-direction: column;
+        align-items: center;
+        margin-left: 50px;
+    }
+    .camera-feed {
+        width: 100%;
+        border-radius: 15px;
+        box-shadow: 0 0 30px rgba(243,120,32,0.6); /* orange glow */
+        border: 3px solid #f37820; /* orange border */
+    }
+    .grid-overlay {
+         position: absolute;
+         top: 0;
+         left: 0;
+         width: 101%;   /* match the image width */
+         height:98%;  /* match the image height */
+         background-image: linear-gradient(to right, rgba(243,120,32,0.2) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(243,120,32,0.2) 1px, transparent 1px);
+         background-size: 40px 40px;
+         pointer-events: none;
+         border-radius: 15px;
+    }
+    .scan-line {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: #f37820; /* orange scan line */
+        animation: scan 3s linear infinite;
+        opacity: 0.8;
+    }
+    @keyframes scan {
+        0% { top: 0; }
+        100% { top: 100%; }
+    }
+    .hud-text {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.7);
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 1.2em;
+        border: 1px solid #f37820; /* orange border */
+        color: #f37820; /* orange text */
+    }
+
+    /* LOGO UNDER CAMERA */
+    .logo-container {
+        margin-top: 20px;
+        text-align: center;
+    }
+    .logo {
+        max-height: 100px;
+        width: auto;
+    }
+
+    /* SIDE PANEL */
+    .side-panel {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        flex: 1 1 30%;
+        max-width: 350px;
+    }
+
+    .side-panel form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        width: 100%;
+    }
+    .side-panel label {
+        font-weight: 600;
+        margin-bottom: -8px;
+    }
+    .side-panel input {
+        padding: 10px;
+        border-radius: 8px;
+        border: none;
+        font-size: 1em;
+    }
+    .side-panel button {
+        padding: 12px;
+        background: #f37820;
+        color: white;
+        font-size: 1.1em;
+        font-weight: bold;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    .side-panel button:hover {
+        background: #d96010;
+    }
+
+    /* QR CODE */
+    .qr-container {
+        text-align: center;
+    }
+    .qr-container img {
+        width: 250px;
+        border: 3px solid #f37820;
+        border-radius: 12px;
+        box-shadow: 0 0 10px rgba(243,120,32,0.6);
+    }
+    .qr-container p {
+        margin-top: 10px;
+        font-size: 1.1em;
+    }
+</style>
+
+</head>
+<body>
+    <!-- HEADER -->
+    <div class="page-header">
+        {% if lang=='en' %}Face Recognition System{% else %}نظام التعرف على الوجه{% endif %}
+    </div>
+
+    <div class="container">
+        <!-- CAMERA PANEL -->
+        <div class="camera-container">
+            <div style="position: relative; width: 100%;">
+                <img class="camera-feed" src="{{ url_for('video_feed') }}" alt="Camera Feed">
+                <div class="grid-overlay"></div>
+                <div class="scan-line"></div>
+                <div class="hud-text">
+                    {% if lang=='en' %}Analyzing Face...{% else %}جارٍ تحليل الوجه...{% endif %}
+                </div>
+            </div>
+            <!-- LOGO directly under camera -->
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='face_images/logo.png') }}" alt="Company Logo" class="logo">
+            </div>
+        </div>
+
+        <!-- SIDE PANEL -->
+        <div class="side-panel">
+            <!-- FORM -->
+            <form action="/recognize" method="POST">
+                <label>{% if lang=='en' %}Name:{% else %}الاسم:{% endif %}</label>
+                <input type="text" name="name" required>
+
+                <label>{% if lang=='en' %}Phone:{% else %}الهاتف:{% endif %}</label>
+                <input type="text" name="phone" required>
+
+                <label>{% if lang=='en' %}Email:{% else %}البريد الإلكتروني:{% endif %}</label>
+                <input type="email" name="email" required>
+
+                <button type="submit">{% if lang=='en' %}📸 Scan Face{% else %}📸 مسح الوجه{% endif %}</button>
+            </form>
+
+            <!-- QR CODE -->
+            <div class="qr-container">
+                <img src="{{ url_for('static', filename='face_images/qrcode.jpeg') }}" alt="QR Code">
+                <p>{% if lang=='en' %}Scan this QR code{% else %}امسح رمز QR{% endif %}</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

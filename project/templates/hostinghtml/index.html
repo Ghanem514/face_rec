@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Face Recognition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #000;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        body[dir="rtl"] { text-align: right; direction: rtl; }
+
+        /* Camera styling */
+        .camera-container {
+            position: relative;
+            width: 640px;
+            max-width: 100%;
+            margin: 20px auto;
+        }
+        video {
+            width: 100%;
+            border: 3px solid rgba(243,120,32,0.6);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(243,120,32,0.5);
+        }
+        canvas { display: none; }
+
+        /* Form styling */
+        form {
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        label { font-weight: 600; display: block; margin: 10px 0 5px; }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border: 1px solid #fff;
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+        }
+        button {
+            background: #f37820;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover { opacity: 0.9; }
+    </style>
+</head>
+<body dir="{{ 'rtl' if lang=='ar' else 'ltr' }}">
+
+    <!-- Language Switch -->
+    <div style="position: fixed; top: 15px; right: 15px;">
+        {% if lang == 'en' %}
+            <a href="{{ url_for('switch_lang', lang='ar') }}" style="color:#f37820;">العربية</a>
+        {% else %}
+            <a href="{{ url_for('switch_lang', lang='en') }}" style="color:#f37820;">English</a>
+        {% endif %}
+    </div>
+
+    <h1>{% if lang=='en' %}Face Recognition Scanner{% else %}ماسح التعرف على الوجه{% endif %}</h1>
+
+    <!-- Camera -->
+    <div class="camera-container">
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <!-- Form -->
+    <form id="scanForm" method="POST" action="/recognize">
+        <label>{% if lang=='en' %}Name:{% else %}الاسم:{% endif %}</label>
+        <input type="text" name="name" required>
+        <label>{% if lang=='en' %}Phone:{% else %}الهاتف:{% endif %}</label>
+        <input type="text" name="phone" required>
+        <label>{% if lang=='en' %}Email:{% else %}البريد الإلكتروني:{% endif %}</label>
+        <input type="email" name="email" required>
+        <!-- Hidden input for captured frame -->
+        <input type="hidden" name="image_data" id="image_data">
+        <button type="button" onclick="captureFrame()">{% if lang=='en' %}📸 Scan Face{% else %}📸 مسح الوجه{% endif %}</button>
+    </form>
+
+    <script>
+        // Start camera
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const imageInput = document.getElementById('image_data');
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => { video.srcObject = stream; })
+            .catch(err => { alert("Camera access denied: " + err); });
+
+        function captureFrame() {
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            // Convert to Base64
+            const dataUrl = canvas.toDataURL('image/jpeg');
+            imageInput.value = dataUrl;
+            document.getElementById('scanForm').submit();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="UTF-8" />
+<title>{% if lang=='en' %}Email Status{% else %}حالة البريد{% endif %}</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+body {
+    font-family: 'Poppins', sans-serif;
+    color: #fff;
+    background: #000;
+    overflow: hidden;
+    text-align: center;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    direction: {{ 'rtl' if lang=='ar' else 'ltr' }};
+}
+
+/* Background lines */
+.background-lines {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 200%;
+    background-image: 
+        linear-gradient(0deg, rgba(243,120,32,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(243,120,32,0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: moveLines 20s linear infinite;
+    z-index: -3;
+}
+@keyframes moveLines {
+    0% { transform: translate(0,0); }
+    100% { transform: translate(-100px,-100px); }
+}
+
+/* Floating particles */
+.particle {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: rgba(255,50,0,0.8);
+    border-radius: 50%;
+    opacity: 0.7;
+    animation: float 8s linear infinite;
+}
+
+/* Pulsing circles */
+.pulse-circle {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border: 3px solid rgba(243,120,32,0.5);
+    border-radius: 50%;
+    animation: pulse 4s infinite;
+    opacity: 0.6;
+}
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(2.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 0.6; }
+}
+
+/* Logo */
+.logo-container {
+    text-align: center;
+    margin-bottom: 40px;
+}
+.logo {
+    max-height: 120px;
+    width: auto;
+    display: inline-block;
+}
+
+/* Message */
+h2 {
+    margin-bottom: 30px;
+    font-size: 28px;
+    color: #00ff00;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    animation: fadeIn 1s ease-in-out;
+}
+
+/* Buttons */
+button {
+    background: #f37820;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 25px;
+    font-size: 16px;
+    box-shadow: 0 4px 10px rgba(243,120,32,0.3);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+button:hover {
+    opacity: 0.9;
+    transform: translateY(-3px);
+}
+
+/* Fade-in */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<!-- Background animations -->
+<div class="background-lines"></div>
+<div class="pulse-circle" style="top:20%; left:25%; animation-delay:0s;"></div>
+<div class="pulse-circle" style="top:50%; left:60%; animation-delay:1s;"></div>
+<div class="pulse-circle" style="top:70%; left:30%; animation-delay:2s;"></div>
+
+<div class="logo-container">
+    <img src="{{ url_for('static', filename='face_images/logo.png') }}" alt="Company Logo" class="logo">
+</div>
+
+<!-- Success message -->
+<h2 style="color:#f37820; text-shadow: 0 0 8px rgba(243,120,32,0.7);">{{ message }}</h2>
+
+<!-- Scan again button -->
+<form action="{{ url_for('index') }}" method="get">
+    <button type="submit">{% if lang=='en' %}🔄 Scan Again{% else %}🔄 أعد المسح{% endif %}</button>
+</form>
+
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Face Recognition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-orange: #f37820;
+            --orange-glow: rgba(243, 120, 32, 0.5);
+            --orange-light: rgba(243, 120, 32, 0.1);
+            --white: #ffffff;
+            --black: #000000;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--black);
+            color: var(--white);
+            margin: 0;
+            padding: 20px;
+            overflow-y: auto;
+            text-align: center;
+            min-height: 100vh;
+        }
+
+        /* Adjust for RTL */
+        body[dir="rtl"] { 
+            text-align: right; 
+            direction: rtl; 
+        }
+
+        /* Background animations */
+        .background-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                linear-gradient(0deg, rgba(243,120,32,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(243,120,32,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: moveLines 25s linear infinite;
+            z-index: -3;
+        }
+        @keyframes moveLines { 
+            0% { transform: translate(0,0) rotate(0deg); } 
+            100% { transform: translate(-120px,-120px) rotate(2deg); } 
+
+        /* Floating particles */
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--primary-orange);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float 12s ease-in-out infinite;
+            box-shadow: 0 0 10px var(--orange-glow);
+        }
+        @keyframes float { 
+            0%, 100% { transform: translateY(0) translateX(0) scale(1); opacity: 0.6; }
+            33% { transform: translateY(-150px) translateX(100px) scale(1.2); opacity: 0.8; }
+            66% { transform: translateY(-50px) translateX(-80px) scale(0.8); opacity: 0.4; }
+        }
+
+        /* Pulsing circles */
+        .pulse-circle {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border: 2px solid var(--orange-glow);
+            border-radius: 50%;
+            animation: pulse 6s infinite ease-in-out;
+            opacity: 0.4;
+        }
+        @keyframes pulse { 
+            0% { transform: scale(0.8); opacity: 0.4; }
+            50% { transform: scale(2.2); opacity: 0; }
+            100% { transform: scale(0.8); opacity: 0.4; }
+        }
+
+        /* Logo */
+        .logo-container { text-align: center; margin-bottom: 40px; position: relative; z-index: 1; }
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px 30px;
+            background: linear-gradient(135deg, var(--glass-bg), rgba(255, 255, 255, 0.02));
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                0 0 40px var(--orange-light);
+            transition: all 0.3s ease;
+        }
+
+
+        .logo:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.4),
+                0 0 60px var(--orange-glow);
+        }
+ 
+        /* Main container */
+        .container { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center; gap: 40px; z-index: 1; position: relative; }
+
+        /* CAMERA SECTION */
+        .camera-container { position: relative; flex: 1 1 60%; max-width: 700px; min-width: 400px; }
+        .camera-feed {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            background: rgba(255,255,255,0.05) url('https://via.placeholder.com/640x480?text=Loading+Camera...') center center no-repeat;
+            background-size: cover;
+            border: 3px solid rgba(243,120,32,0.6);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(243,120,32,0.5);
+            display: block;
+        }
+
+        .camera-wrapper {
+            position: relative;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                0 0 40px var(--orange-light);
+            transition: all 0.3s ease;
+        }
+        .camera-wrapper:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.4),
+                0 0 60px var(--orange-glow);
+        }
+
+        .scan-line {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary-orange), transparent);
+            animation: scanMove 3s linear infinite;
+            z-index: 2;
+            border-radius: 2px;
+            box-shadow: 0 0 10px var(--orange-glow);
+        }
+        @keyframes scanMove { 0% { top: 0; } 100% { top: 100%; } }
+
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(rgba(243,120,32,0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(243,120,32,0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            border-radius: 10px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .hud-text {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            font-size: 14px;
+            color: #f37820;
+            text-shadow: 0 0 5px rgba(243,120,32,0.7);
+            font-weight: bold;
+            animation: textBlink 1s infinite alternate;
+            z-index: 3;
+        }
+        @keyframes textBlink { 0% { opacity: 1; } 100% { opacity: 0.5; } }
+
+        /* FORM */
+        form {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            width: 300px;
+            box-shadow: 0 4px 20px rgba(243,120,32,0.1);
+        }
+        label { font-weight: 600; font-size: 14px; color: #fff; }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0 15px 0;
+            border: 1px solid #fff;
+            border-radius: 6px;
+            outline: none;
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+        }
+        input:focus { box-shadow: 0 0 10px rgba(243,120,32,0.5); }
+        button {
+            background: #f37820;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        button:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 0 10px #f37820; }
+    </style>
+</head>
+<body dir="{{ 'rtl' if lang=='ar' else 'ltr' }}">
+
+    <!-- Language Switch -->
+    <div style="position: fixed; top: 15px; right: 15px; z-index: 10;">
+        {% if lang == 'en' %}
+            <a href="{{ url_for('switch_lang', lang='ar') }}" style="color:#f37820;">العربية</a>
+        {% else %}
+            <a href="{{ url_for('switch_lang', lang='en') }}" style="color:#f37820;">English</a>
+        {% endif %}
+    </div>
+
+    <!-- Background elements -->
+    <div class="background-lines"></div>
+    <div class="particle" style="top:10%; left:15%; animation-delay:0s;"></div>
+    <div class="particle" style="top:30%; left:50%; animation-delay:1s;"></div>
+    <div class="particle" style="top:50%; left:20%; animation-delay:2s;"></div>
+    <div class="particle" style="top:70%; left:70%; animation-delay:3s;"></div>
+    <div class="particle" style="top:20%; left:80%; animation-delay:1.5s;"></div>
+    <div class="particle" style="top:60%; left:40%; animation-delay:2.5s;"></div>
+    <div class="pulse-circle" style="top:20%; left:25%; animation-delay:0s;"></div>
+    <div class="pulse-circle" style="top:50%; left:60%; animation-delay:1s;"></div>
+    <div class="pulse-circle" style="top:70%; left:30%; animation-delay:2s;"></div>
+
+    <!-- Logo -->
+    <div class="logo-container">
+        <img src="{{ url_for('static', filename='face_images/logo.png') }}" alt="Company Logo" class="logo">
+    </div>
+
+    <div class="container">
+        <!-- CAMERA PANEL -->
+        <div class="camera-container">
+            <img class="camera-feed" src="{{ url_for('video_feed') }}" alt="Camera Feed">
+            <div class="grid-overlay"></div>
+            <div class="scan-line"></div>
+            <div class="hud-text">
+                {% if lang=='en' %}Analyzing Face...{% else %}جارٍ تحليل الوجه...{% endif %}
+            </div>
+        </div>
+
+        <!-- FORM PANEL -->
+        <form action="/recognize" method="POST">
+            <label>{% if lang=='en' %}Name:{% else %}الاسم:{% endif %}</label>
+            <input type="text" name="name" required>
+            <label>{% if lang=='en' %}Phone:{% else %}الهاتف:{% endif %}</label>
+            <input type="text" name="phone" required>
+            <label>{% if lang=='en' %}Email:{% else %}البريد الإلكتروني:{% endif %}</label>
+            <input type="email" name="email" required>
+            <button type="submit">{% if lang=='en' %}📸 Scan Face{% else %}📸 مسح الوجه{% endif %}</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% if lang == "en" %}No Matches Found{% else %}لا توجد صور مطابقة{% endif %}</title>
+    <style>
+ body {
+    font-family: 'Poppins', sans-serif;
+    background: #000;
+    color: #fff;
+    margin: 0;
+    padding: 20px;
+    overflow-y: auto;
+    text-align: center;
+        }
+/* Background animations */
+.background-lines {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 200%;
+    background-image: 
+        linear-gradient(0deg, rgba(243,120,32,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(243,120,32,0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: moveLines 20s linear infinite;
+    z-index: -3;
+}
+/* Floating particles */
+.particle {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: rgba(255,50,0,0.8);
+    border-radius: 50%;
+    opacity: 0.7;
+    animation: float 8s linear infinite;
+}
+
+/* Pulsing circles */
+.pulse-circle { position: absolute; width: 60px; height: 60px; border: 3px solid rgba(243,120,32,0.5); border-radius: 50%; animation: pulse 4s infinite; opacity: 0.6; }
+@keyframes pulse { 0% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(2.5); opacity: 0; } 100% { transform: scale(1); opacity: 0.6; } }
+/* Logo */
+.logo-container { text-align: center; margin-bottom: 40px; position: relative; z-index: 1; }
+.logo { max-height: 140px; width: auto; display: inline-block; }
+
+        .toggle {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+        }
+        .toggle a {
+            color: orange;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .box {
+            margin-top: 100px;
+            background: #222;
+            padding: 40px;
+            border-radius: 15px;
+            display: inline-block;
+            box-shadow: 0 0 20px rgba(255, 165, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <!-- Language toggle -->
+    <div class="toggle">
+        {% if lang == "en" %}
+            <a href="{{ url_for('switch_lang', lang='ar') }}">العربية</a>
+        {% else %}
+            <a href="{{ url_for('switch_lang', lang='en') }}">English</a>
+        {% endif %}
+    </div>
+
+    <div class="box">
+        <h1>
+            {% if lang == "en" %}
+                ❌ No Matching Faces Found
+            {% else %}
+                ❌ لم يتم العثور على أي صور مطابقة
+            {% endif %}
+        </h1>
+        <p>
+            {% if lang == "en" %}
+                Please try again with a clearer image.
+            {% else %}
+                الرجاء المحاولة مرة أخرى بصورة أوضح.
+            {% endif %}
+        </p>
+        <br>
+        <a href="{{ url_for('index') }}" style="color: orange; font-weight: bold; text-decoration: none;">
+            {% if lang == "en" %} ⬅ Back to Home {% else %} ⬅ العودة إلى الصفحة الرئيسية {% endif %}
+        </a>
+    </div>
+</body>
+</html>
