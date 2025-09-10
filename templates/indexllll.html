@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Face Recognition</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* --- Same animations and styles as before --- */
+body { margin:0; padding:0; background:#0d0d0d; font-family:'Poppins', sans-serif; color:#fff; overflow:auto; }
+body[dir="rtl"] { direction:rtl; }
+/* ... include all your previous styles (pulses, grid, side panel, etc.) ... */
+.side-panel form { display:flex; flex-direction:column; gap:15px; width:100%; background: rgba(255,255,255,0.05); padding:25px; border-radius:15px; backdrop-filter: blur(5px); }
+</style>
+</head>
+<body dir="{{ 'rtl' if lang=='ar' else 'ltr' }}">
+
+<div class="background-lines"></div>
+<div class="pulse-circle" style="top:20%; left:25%;"></div>
+<div class="pulse-circle" style="top:50%; left:60%;"></div>
+<div class="pulse-circle" style="top:70%; left:30%;"></div>
+
+<!-- Language Switch -->
+<div class="lang-switch">
+{% if lang=='en' %}
+    <a href="{{ url_for('switch_lang', lang='ar') }}">العربية</a>
+{% else %}
+    <a href="{{ url_for('switch_lang', lang='en') }}">English</a>
+{% endif %}
+</div>
+
+<div class="page-header">
+    {% if lang=='en' %}Face Recognition System{% else %}نظام التعرف على الوجه{% endif %}
+</div>
+
+<div class="container">
+    <!-- SIDE PANEL -->
+    <div class="side-panel">
+
+        <!-- Upload Form -->
+        <form action="/recognize" method="POST" enctype="multipart/form-data">
+            <label>{% if lang=='en' %}Name:{% else %}الاسم:{% endif %}</label>
+            <input type="text" name="name" required>
+
+            <label>{% if lang=='en' %}Phone:{% else %}الهاتف:{% endif %}</label>
+            <input type="text" name="phone" required>
+
+            <label>{% if lang=='en' %}Email:{% else %}البريد الإلكتروني:{% endif %}</label>
+            <input type="email" name="email" required>
+
+            <label>{% if lang=='en' %}Upload Image:{% else %}رفع صورة:{% endif %}</label>
+            <input type="file" name="uploaded_image" accept="image/*">
+
+            <button type="submit">{% if lang=='en' %}Submit{% else %}إرسال{% endif %}</button>
+        </form>
+
+        <!-- Camera Button -->
+        <form action="/recognize" method="POST">
+            <input type="hidden" name="use_camera" value="true">
+            <label>{% if lang=='en' %}Or use camera:{% else %}أو استخدم الكاميرا:{% endif %}</label>
+            <button type="submit">{% if lang=='en' %}📸 Use Camera{% else %}📸 استخدم الكاميرا{% endif %}</button>
+        </form>
+
+    </div>
+</div>
+</body>
+</html>

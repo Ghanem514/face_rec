@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Face Recognition App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(135deg, #f0f4f8, #d9e8ff);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      color: #1a237e;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      color: #5c6bc0;
+      font-weight: 600;
+    }
+
+    .video-container {
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    video, img {
+      width: 100%;
+      max-width: 640px;
+      display: block;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: white;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+
+    input[type=email] {
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    button {
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #3949ab;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #303f9f;
+    }
+
+    footer {
+      margin-top: auto;
+      text-align: center;
+      font-size: 0.875rem;
+      color: #777;
+      padding: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Face Recognition System</h1>
+    <p>Look into the camera and get recognized instantly</p>
+  </header>
+
+  <div class="video-container">
+    <img src="/video_feed" alt="Live Video Feed">
+  </div>
+
+  <form action="/recognize" method="POST">
+    <input type="email" name="email" placeholder="Enter your email" required>
+    <button type="submit">Recognize Me</button>
+  </form>
+
+  <footer>
+    &copy; 2025 Smart Vision AI | Built with ❤ using Flask & InsightFace
+  </footer>
+</body>
+</html>
