@@ -74,8 +74,8 @@ with open(IMAGE_LINKS_FILE, "r") as f:
 normalized_image_url_map = {normalize_name(k): v for k, v in image_url_map.items()}
 
 # --- Initialize FaceAnalysis ---
-face_app = FaceAnalysis(name='buffalo_1')
-face_app.prepare(ctx_id=0)
+face_app = FaceAnalysis(name='antelopev2 ')
+face_app.prepare(ctx_id=-1)
 
 # --- MongoDB helpers ---
 def save_user_with_matches(name, phone, email, matches):
@@ -275,4 +275,5 @@ def send_selected():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
 
