@@ -1,25 +1,13 @@
-# Web framework
-Flask==2.3.4
-
-# Computer vision / face recognition
+Flask==2.3.3
 opencv-python==4.8.1.78
 insightface==0.8.5
 numpy==1.25.2
-scikit-learn==1.3.2
-
-# Email sending
-secure-smtplib==0.1  # optional, usually smtplib comes with Python
-
+scikit-learn==1.3.1
+onnxruntime==1.15.1
 # Data handling
-pandas==2.1.1  # if you handle CSVs
-python-dotenv==1.0.1  # for environment variables like secret keys
-
-# Optional for MongoDB
-pymongo==4.5.0
-dnspython==2.3.0  # required for some MongoDB URIs
-
-# Optional for image handling / emails
+pandas==2.1.1
+python-dotenv==1.0.0
+pymongo==4.4.1
+dnspython==2.4.3
 Pillow==10.1.0
-
-# For file uploads
-Werkzeug==2.3.7
+Werkzeug==2.3.6
