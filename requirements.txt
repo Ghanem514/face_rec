@@ -4,13 +4,14 @@ insightface
 numpy
 scikit-learn
 onnxruntime
-gounicorn
+gunicorn
 pandas
 python-dotenv
 pymongo
 dnspython
 Pillow
 Werkzeug
+
 
 
 
